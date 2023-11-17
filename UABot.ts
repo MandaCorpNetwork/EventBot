@@ -184,6 +184,7 @@ discord.on('ready', async () => {
   setInterval(
     async () => {
       const events = await getEvents();
+      await syncDiscordStatus();
       await purgeDeadEvents(events!);
       await syncDiscord(events!);
       await syncTeamspeak(events!);
@@ -225,7 +226,7 @@ const syncDiscord = async (
       db.get(
         `SELECT * FROM linked_events WHERE parentid = ? AND server = ?`,
         [event_id, server],
-        async (err, result) => {
+        async (_, result) => {
           if (result == null) {
             discord.guilds.cache
               .get(server)
