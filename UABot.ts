@@ -1,11 +1,7 @@
 import 'dotenv/config';
+import { TeamSpeak, QueryProtocol } from 'ts3-nodejs-library';
 import {
-  TeamSpeak,
-  QueryProtocol,
-  TeamSpeakChannel,
-  TextMessageTargetMode,
-} from 'ts3-nodejs-library';
-import {
+  ActivityType,
   Client,
   Collection,
   GatewayIntentBits,
@@ -181,6 +177,7 @@ discord.on('interactionCreate', async (interaction) => {
 
 discord.on('ready', async () => {
   const events = await getEvents();
+  await syncDiscordStatus();
   await purgeDeadEvents(events!);
   await syncDiscord(events!);
   await syncTeamspeak(events!);
@@ -194,6 +191,16 @@ discord.on('ready', async () => {
     1_000 * 60 * 1,
   );
 });
+
+const syncDiscordStatus = async () => {
+  const connectedClients = await teamspeak.clientList();
+  const connectedClientsCount = connectedClients.filter(
+    (c) => c.platform != 'ServerQuery',
+  ).length;
+  discord.user?.setActivity(`${connectedClientsCount} connected clients.`, {
+    type: ActivityType.Watching,
+  });
+};
 
 const syncDiscord = async (
   eventsToSync: Collection<
