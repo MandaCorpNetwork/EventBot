@@ -45,7 +45,9 @@ try {
   console.error((error as any).rawError);
 }
 
-const servers: string[] = [];
+const servers: string[] = [
+  '846401886193451018' //DIS
+];
 
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
