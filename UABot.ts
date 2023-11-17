@@ -16,6 +16,16 @@ import { EventEmitter } from 'events';
 import { Database, verbose } from 'sqlite3';
 import { readFileSync } from 'fs';
 
+
+
+
+
+const servers: string[] = [];
+
+
+
+
+
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
 });
@@ -72,8 +82,6 @@ discord.on('ready', async () => {
     1_000 * 60 * 1,
   );
 });
-
-const servers = ['888735224513593374', '987878339857485845'];
 
 const syncDiscord = async (
   eventsToSync: Collection<
