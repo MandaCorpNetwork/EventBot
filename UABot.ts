@@ -9,6 +9,7 @@ import {
   Client,
   Collection,
   GatewayIntentBits,
+  GuildMemberRoleManager,
   GuildScheduledEvent,
   GuildScheduledEventStatus,
 } from 'discord.js';
@@ -16,15 +17,39 @@ import { EventEmitter } from 'events';
 import { Database, verbose } from 'sqlite3';
 import { readFileSync } from 'fs';
 
+import { REST, Routes } from 'discord.js';
 
+const rest = new REST({ version: '10' }).setToken(
+  process.env.DISCORD_TOKEN as string,
+);
 
+try {
+  console.log('Started refreshing application (/) commands.');
 
+  rest
+    .put(
+      Routes.applicationGuildCommands(
+        process.env.DISCORD_ID as string,
+        '662951803469692928',
+      ),
+      {
+        body: [
+          {
+            name: 'authenticate',
+            description: 'Get a teamspeak privilage token',
+            default_permission: false,
+          },
+        ],
+      },
+    )
+    .then(() => {
+      console.log('Successfully reloaded application (/) commands.');
+    });
+} catch (error) {
+  console.error((error as any).rawError);
+}
 
 const servers: string[] = [];
-
-
-
-
 
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
@@ -34,6 +59,12 @@ type EventEntry = {
   id: string;
   server: string;
   parentid: string;
+};
+type TeamspeakTokenEntry = {
+  id: string;
+  token: string;
+  used: 0 | 1;
+  usedby: string;
 };
 
 discord.login(process.env.DISCORD_TOKEN);
@@ -65,6 +96,87 @@ teamspeak.on('ready', async () => {
     await teamspeak.reconnect(-1, 1000);
     console.log('reconnected!');
   });
+  teamspeak.on('tokenused', (event) => {
+    console.log(`${event.client.nickname} Redeemed token ${event.token}`);
+    db.run('UPDATE teamspeak_tokens SET used=1, usedby=? WHERE token=?', [
+      event.client.uniqueIdentifier,
+      event.token,
+    ]);
+  });
+});
+
+discord.on('interactionCreate', async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName == 'authenticate') {
+    await interaction.deferReply({ ephemeral: true });
+    const userRoles = interaction.member?.roles as GuildMemberRoleManager;
+    let userOrg: string = 'INVALID';
+    if (userRoles.cache.get('1171070187810861086')) {
+      userOrg = '27';
+    } else if (userRoles.cache.get('1171076676160081930')) {
+      userOrg = '28';
+    } else if (userRoles.cache.get('1171082143808630785')) {
+      userOrg = '29';
+    } else if (userRoles.cache.get('1171082885994922025')) {
+      userOrg = '30';
+    } else if (userRoles.cache.get('1171083813745594398')) {
+      userOrg = '31';
+    }
+
+    if (userOrg == 'INVALID') {
+      interaction.editReply({
+        embeds: [
+          {
+            title: 'PERMISSION DENIED',
+            description: 'This command is only valid for Alliance Members',
+          },
+        ],
+      });
+      return;
+    }
+
+    db.get<TeamspeakTokenEntry>(
+      'SELECT * FROM teamspeak_tokens WHERE id=?',
+      [interaction.user.id],
+      async (err, row) => {
+        if (err) console.error(err);
+        let privilageToken;
+        let tokenUsed: 0 | 1 = 0;
+        if (row != null) {
+          privilageToken = row.token;
+          tokenUsed = row.used;
+        } else {
+          const response = await teamspeak.serverGroupPrivilegeKeyAdd(
+            userOrg,
+            `Auto-Generated token for ${interaction.user.username} (${interaction.user.id})`,
+          );
+          console.info(
+            `Generating token for ${interaction.user.username} (${interaction.user.id}) - ${response.token}`,
+          );
+          privilageToken = response.token;
+          try {
+            db.run('INSERT INTO teamspeak_tokens (id, token) VALUES (?,?)', [
+              interaction.user.id,
+              response.token,
+            ]);
+          } catch (err) {}
+        }
+        await interaction.editReply({
+          embeds: [
+            {
+              title: 'The Unnamed Alliance Teamspeak',
+              description: `**Authenticated Successfully**\nYour Privilage token is:\n\`\`\`\n${privilageToken}\`\`\`\n${
+                tokenUsed
+                  ? '**This Code has Already been Claimed!**'
+                  : 'This code has **NOT** been used!'
+              }\n\nIn [Teamspeak 3.X](https://www.teamspeak.com/en/downloads/#archive), click Connections and press Connect (Shortcut CTRL+S) and enter the following info:\n**Server Address:** \`manda\`\n**password:** \`fucktheirs\`\n**nickname:** Up to you\n\nOnce connected, go to \`Permissions -> Use Privilage Key\` and enter the token to receive roles and permissions.\n\nUseful Links:\n[Sub Channels How-To](https://discord.com/channels/662951803469692928/1127465128951038074)\n[Whispers How-To](https://discord.com/channels/662951803469692928/1127457192308637727)\n[Whisper Notification Sound How-To](https://discord.com/channels/662951803469692928/1127384155244728400)\n[Sound Capture Config How-To](https://discord.com/channels/662951803469692928/1127378461313478857)`,
+            },
+          ],
+        });
+      },
+    );
+  }
 });
 
 discord.on('ready', async () => {

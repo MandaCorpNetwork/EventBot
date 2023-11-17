@@ -4,3 +4,11 @@ CREATE TABLE IF NOT EXISTS linked_events (
   parentid VARCHAR(20) NOT NULL,
   PRIMARY KEY (id)
 );
+//
+CREATE TABLE IF NOT EXISTS teamspeak_tokens (
+  id VARCHAR(20) NOT NULL,
+  token TINYTEXT NOT NULL,
+  used BOOLEAN NOT NULL DEFAULT 0,
+  usedby TINYTEXT,
+  PRIMARY KEY (id)
+);
