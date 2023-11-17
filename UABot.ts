@@ -165,7 +165,7 @@ discord.on('interactionCreate', async (interaction) => {
               description: `**Authenticated Successfully**\nYour Privilage token is:\n\`\`\`\n${privilageToken}\`\`\`\n${
                 tokenUsed
                   ? '**This Code has Already been Claimed!**'
-                  : 'This code has **NOT** been used!'
+                  : 'This code is still Valid!'
               }\n\nIn [Teamspeak 3.X](https://www.teamspeak.com/en/downloads/#archive), click Connections and press Connect (Shortcut CTRL+S) and enter the following info:\n**Server Address:** \`manda\`\n**password:** \`fucktheirs\`\n**nickname:** Up to you\n\nOnce connected, go to \`Permissions -> Use Privilage Key\` and enter the token to receive roles and permissions.\n\nUseful Links:\n[Sub Channels How-To](https://discord.com/channels/662951803469692928/1127465128951038074)\n[Whispers How-To](https://discord.com/channels/662951803469692928/1127457192308637727)\n[Whisper Notification Sound How-To](https://discord.com/channels/662951803469692928/1127384155244728400)\n[Sound Capture Config How-To](https://discord.com/channels/662951803469692928/1127378461313478857)`,
             },
           ],
