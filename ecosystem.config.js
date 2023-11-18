@@ -1,8 +1,7 @@
 module.exports = {
   apps : [{
-    script: 'UABot.ts',
-    interpreter: 'ts-node',
-    watch: '.',
+    script: 'UABot.js',
+    watch: ['UABot.js', 'servers.json', '.env'],
     ignore_watch:["Events.sqlite"],
   }],
 };
