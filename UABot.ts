@@ -44,11 +44,7 @@ try {
 } catch (error) {
   console.error((error as any).rawError);
 }
-
-const servers: string[] = [
-  '846401886193451018', //DIS
-  '947254912327229500', //SSLF
-];
+import servers from './servers.json'
 
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
