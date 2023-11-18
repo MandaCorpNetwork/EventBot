@@ -46,7 +46,8 @@ try {
 }
 
 const servers: string[] = [
-  '846401886193451018' //DIS
+  '846401886193451018', //DIS
+  '947254912327229500', //SSLF
 ];
 
 const discord = new Client({
