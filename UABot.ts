@@ -44,7 +44,7 @@ try {
 } catch (error) {
   console.error((error as any).rawError);
 }
-import servers from './servers.json'
+import servers from './servers.json';
 
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
@@ -176,7 +176,6 @@ discord.on('interactionCreate', async (interaction) => {
 
 discord.on('ready', async () => {
   const events = await getEvents();
-  console.log('Servers:',discord.guilds.cache.keys())
   await syncDiscordStatus();
   await purgeDeadEvents(events!);
   await syncDiscord(events!);
