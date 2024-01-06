@@ -44,7 +44,7 @@ try {
 } catch (error) {
   console.error((error as any).rawError);
 }
-import servers from './servers.json';
+import servers from './servers.json'
 
 const discord = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent],
@@ -76,7 +76,7 @@ for (const statement of statements) {
 }
 //create a new connection
 const teamspeak = new TeamSpeak({
-  host: '64.44.28.2',
+  host: '108.181.251.69',
   protocol: QueryProtocol.RAW,
   queryport: 10011,
   serverport: 9987,
@@ -176,6 +176,7 @@ discord.on('interactionCreate', async (interaction) => {
 
 discord.on('ready', async () => {
   const events = await getEvents();
+  console.log('Servers:',discord.guilds.cache.keys())
   await syncDiscordStatus();
   await purgeDeadEvents(events!);
   await syncDiscord(events!);
