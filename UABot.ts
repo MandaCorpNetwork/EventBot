@@ -176,7 +176,7 @@ discord.on('interactionCreate', async (interaction) => {
 
 discord.on('ready', async () => {
   const events = await getEvents();
-  console.log('Servers:',discord.guilds.cache.keys())
+  //console.log('Servers:',discord.guilds.cache.keys())
   await syncDiscordStatus();
   await purgeDeadEvents(events!);
   await syncDiscord(events!);
